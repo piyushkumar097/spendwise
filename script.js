@@ -351,7 +351,7 @@ const SpendWiseCharts = (function () {
     if (labels.length === 0) {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '14px Plus Jakarta Sans, sans-serif';
+      ctx.font = '14px Inter, sans-serif';
       ctx.fillStyle = '#94a3b8';
       ctx.textAlign = 'center';
       ctx.fillText('No expenses recorded for this month', canvas.width / 2, canvas.height / 2);
@@ -377,7 +377,7 @@ const SpendWiseCharts = (function () {
             position: 'bottom',
             labels: {
               boxWidth: 12,
-              font: { family: 'Plus Jakarta Sans', size: 11 },
+              font: { family: 'Inter', size: 11 },
               color: isDarkTheme ? '#f8fafc' : '#0f172a'
             }
           },
@@ -524,7 +524,7 @@ const SpendWiseCharts = (function () {
     if (categories.length === 0) {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '14px Plus Jakarta Sans, sans-serif';
+      ctx.font = '14px Inter, sans-serif';
       ctx.fillStyle = '#94a3b8';
       ctx.textAlign = 'center';
       ctx.fillText('No category allocations or spending recorded', canvas.width / 2, canvas.height / 2);
@@ -577,6 +577,7 @@ const SpendWiseApp = (function () {
   let state = null;
   let activeMonth = '';
   let pendingConfirmAction = null;
+  let previouslyFocusedElement = null;
 
   // ----------------------------------------------------------------------------
   // HELPER FORMATTERS
@@ -629,6 +630,29 @@ const SpendWiseApp = (function () {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function iconSvg(name, size = 18) {
+    const paths = {
+      activity: '<path d="M3 12h4l3-8 4 16 3-8h4"></path>',
+      chart: '<path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-5 5"></path>',
+      target: '<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="m12 12 6-6"></path>',
+      warning: '<path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path>',
+      lightbulb: '<path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.1 14.5A6 6 0 1 0 8.9 14.5c.7.6 1.1 1.2 1.1 2.5h4c0-1.3.4-1.9 1.1-2.5Z"></path>',
+      trendUp: '<path d="m3 17 6-6 4 4 8-8"></path><path d="M15 7h6v6"></path>',
+      trendDown: '<path d="m3 7 6 6 4-4 8 8"></path><path d="M15 17h6v-6"></path>',
+      student: '<path d="m2 10 10-5 10 5-10 5-10-5Z"></path><path d="M6 12v5c3.5 2.5 8.5 2.5 12 0v-5"></path><path d="M22 10v6"></path>',
+      expense: '<path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path>',
+      income: '<path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path>',
+      edit: '<path d="m15 5 4 4"></path><path d="m4 20 4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z"></path>',
+      trash: '<path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5m4-5v5"></path>',
+      check: '<path d="m5 12 4 4L19 6"></path>',
+      moon: '<path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"></path>',
+      sun: '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>'
+    };
+    const path = paths[name];
+    if (!path) throw new Error(`Unknown SpendWise icon: ${name}`);
+    return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${path}</svg>`;
   }
 
   // ----------------------------------------------------------------------------
@@ -769,6 +793,7 @@ const SpendWiseApp = (function () {
     if (pBar && pBadge) {
       const capped = Math.min(usagePercent, 100);
       pBar.style.width = `${capped}%`;
+      pBar.setAttribute('aria-valuenow', capped);
       pBar.className = `progress-bar-fill ${budgetStatus}`;
       pBadge.textContent = `${usagePercent}% Used`;
       pBadge.className = `usage-percentage-badge ${budgetStatus}`;
@@ -781,12 +806,12 @@ const SpendWiseApp = (function () {
       if (monthlyBudget > 0 && usagePercent >= Config.BUDGET_THRESHOLDS.DANGER) {
         banner.style.display = 'block';
         banner.className = 'budget-alert-banner danger';
-        bIcon.textContent = '🚨';
+        bIcon.innerHTML = iconSvg('warning', 20);
         bText.textContent = `ALERT: You have exceeded your monthly budget for ${formatMonthName(month)} by ${formatMoney(Math.abs(moneyLeft))}!`;
       } else if (monthlyBudget > 0 && usagePercent >= Config.BUDGET_THRESHOLDS.WARNING) {
         banner.style.display = 'block';
         banner.className = 'budget-alert-banner';
-        bIcon.textContent = '⚠️';
+        bIcon.innerHTML = iconSvg('warning', 20);
         bText.textContent = `WARNING: You have used ${usagePercent}% of your planned budget for ${formatMonthName(month)}. Spend cautiously!`;
       } else {
         banner.style.display = 'none';
@@ -875,8 +900,9 @@ const SpendWiseApp = (function () {
     if (recent.length === 0) {
       container.innerHTML = `
         <div class="empty-state" style="padding: 1.5rem 0;">
-          <div class="empty-icon" style="font-size: 1.8rem;">🌱</div>
-          <p>No transactions yet. Click "+ Add Daily Expense" to record spending.</p>
+          <div class="empty-icon">${iconSvg('activity', 24)}</div>
+          <p>No activity yet. Add your first transaction to start building a clear picture of your spending.</p>
+          <button class="btn btn-outline btn-sm" onclick="SpendWiseApp.openAddExpenseModal()">Add your first expense</button>
         </div>
       `;
       return;
@@ -884,7 +910,7 @@ const SpendWiseApp = (function () {
 
     container.innerHTML = recent.map(tx => {
       const isExp = tx.type === 'expense';
-      const icon = isExp ? '💸' : '💰';
+      const icon = iconSvg(isExp ? 'expense' : 'income', 18);
       const cat = isExp ? tx.category : tx.source;
       const sign = isExp ? '-' : '+';
       const color = isExp ? 'text-amber' : 'text-green';
@@ -941,7 +967,7 @@ const SpendWiseApp = (function () {
     }
 
     updateModalCurrencyPrefixes();
-    modal.classList.add('open');
+    openModal(modal);
     document.getElementById('expenseDescription').focus();
   }
 
@@ -1083,8 +1109,8 @@ const SpendWiseApp = (function () {
         <td class="text-muted" style="max-width: 220px; font-size: 0.8rem;">${escapeHTML(item.notes || '—')}</td>
         <td class="text-right font-bold text-amber">${formatMoney(item.amount, item.currency)}</td>
         <td class="text-center">
-          <button class="table-action-btn" title="Edit Expense" onclick="SpendWiseApp.openAddExpenseModal('${item.id}')">✏️</button>
-          <button class="table-action-btn delete-btn" title="Delete Expense" onclick="SpendWiseApp.confirmDeleteExpense('${item.id}')">🗑️</button>
+          <button class="table-action-btn" aria-label="Edit expense: ${escapeHTML(item.description)}" title="Edit Expense" onclick="SpendWiseApp.openAddExpenseModal('${item.id}')">${iconSvg('edit', 16)}</button>
+          <button class="table-action-btn delete-btn" aria-label="Delete expense: ${escapeHTML(item.description)}" title="Delete Expense" onclick="SpendWiseApp.confirmDeleteExpense('${item.id}')">${iconSvg('trash', 16)}</button>
         </td>
       </tr>
     `).join('');
@@ -1150,7 +1176,7 @@ const SpendWiseApp = (function () {
     }
 
     updateModalCurrencyPrefixes();
-    modal.classList.add('open');
+    openModal(modal);
     document.getElementById('incomeDescription').focus();
   }
 
@@ -1268,8 +1294,8 @@ const SpendWiseApp = (function () {
         <td class="text-muted" style="max-width: 220px; font-size: 0.8rem;">${escapeHTML(item.notes || '—')}</td>
         <td class="text-right font-bold text-green">+${formatMoney(item.amount)}</td>
         <td class="text-center">
-          <button class="table-action-btn" title="Edit Income" onclick="SpendWiseApp.openAddIncomeModal('${item.id}')">✏️</button>
-          <button class="table-action-btn delete-btn" title="Delete Income" onclick="SpendWiseApp.confirmDeleteIncome('${item.id}')">🗑️</button>
+          <button class="table-action-btn" aria-label="Edit income: ${escapeHTML(item.description)}" title="Edit Income" onclick="SpendWiseApp.openAddIncomeModal('${item.id}')">${iconSvg('edit', 16)}</button>
+          <button class="table-action-btn delete-btn" aria-label="Delete income: ${escapeHTML(item.description)}" title="Delete Income" onclick="SpendWiseApp.confirmDeleteIncome('${item.id}')">${iconSvg('trash', 16)}</button>
         </td>
       </tr>
     `).join('');
@@ -1311,7 +1337,7 @@ const SpendWiseApp = (function () {
     amountInput.value = state.monthlyBudgets[activeMonth] || '';
 
     updateModalCurrencyPrefixes();
-    modal.classList.add('open');
+    openModal(modal);
     amountInput.focus();
   }
 
@@ -1575,7 +1601,7 @@ const SpendWiseApp = (function () {
       keys.forEach(k => { if (catData[k] > catData[top]) top = k; });
       const pct = spent > 0 ? Math.round((catData[top] / spent) * 100) : 0;
       insights.push({
-        icon: '📊',
+        icon: iconSvg('chart', 20),
         title: `Top Spending Category: ${escapeHTML(top)}`,
         desc: `You spent ${formatMoney(catData[top])} (${pct}% of total spending) on ${escapeHTML(top)} this month.`
       });
@@ -1585,20 +1611,20 @@ const SpendWiseApp = (function () {
     if (budget > 0) {
       if (remaining >= 0) {
         insights.push({
-          icon: '🎯',
+          icon: iconSvg('target', 20),
           title: 'Budget On Track',
           desc: `You have ${formatMoney(remaining)} remaining out of your ${formatMoney(budget)} monthly budget (${usage}% used).`
         });
       } else {
         insights.push({
-          icon: '⚠️',
+          icon: iconSvg('warning', 20),
           title: 'Budget Exceeded',
           desc: `You have exceeded your monthly limit by ${formatMoney(Math.abs(remaining))}. Avoid non-essential expenses.`
         });
       }
     } else {
       insights.push({
-        icon: '💡',
+        icon: iconSvg('lightbulb', 20),
         title: 'Plan a Monthly Budget',
         desc: 'Setting a monthly budget ceiling encourages mindful spending and helps you build savings.'
       });
@@ -1612,13 +1638,13 @@ const SpendWiseApp = (function () {
         const diff = spent - lastMonthSpent;
         if (diff > 0) {
           insights.push({
-            icon: '📈',
+            icon: iconSvg('trendUp', 20),
             title: 'Spending Acceleration',
             desc: `You spent ${formatMoney(diff)} more in ${formatMonthName(month)} than in ${formatMonthName(past2[0])}.`
           });
         } else {
           insights.push({
-            icon: '📉',
+            icon: iconSvg('trendDown', 20),
             title: 'Spending Reduction',
             desc: `Good job! You reduced your spending by ${formatMoney(Math.abs(diff))} compared to ${formatMonthName(past2[0])}.`
           });
@@ -1629,7 +1655,7 @@ const SpendWiseApp = (function () {
     // Student Tip
     if (state.userPreferences.studentMode) {
       insights.push({
-        icon: '🎓',
+        icon: iconSvg('student', 20),
         title: 'Student Money Tip',
         desc: 'Review weekly micro-expenses (chai, xerox, snacks). Small daily savings add up to substantial semester savings!'
       });
@@ -1726,8 +1752,8 @@ const SpendWiseApp = (function () {
           <td class="text-muted" style="max-width: 200px; font-size: 0.8rem;">${escapeHTML(item.notes || '—')}</td>
           <td class="text-right font-bold ${color}">${sign}${formatMoney(item.amount, item.currency)}</td>
           <td class="text-center">
-            <button class="table-action-btn" title="Edit" onclick="${isExp ? `SpendWiseApp.openAddExpenseModal('${item.id}')` : `SpendWiseApp.openAddIncomeModal('${item.id}')`}">✏️</button>
-            <button class="table-action-btn delete-btn" title="Delete" onclick="${isExp ? `SpendWiseApp.confirmDeleteExpense('${item.id}')` : `SpendWiseApp.confirmDeleteIncome('${item.id}')`}">🗑️</button>
+            <button class="table-action-btn" aria-label="Edit transaction: ${escapeHTML(item.description)}" title="Edit" onclick="${isExp ? `SpendWiseApp.openAddExpenseModal('${item.id}')` : `SpendWiseApp.openAddIncomeModal('${item.id}')`}">${iconSvg('edit', 16)}</button>
+            <button class="table-action-btn delete-btn" aria-label="Delete transaction: ${escapeHTML(item.description)}" title="Delete" onclick="${isExp ? `SpendWiseApp.confirmDeleteExpense('${item.id}')` : `SpendWiseApp.confirmDeleteIncome('${item.id}')`}">${iconSvg('trash', 16)}</button>
           </td>
         </tr>
       `;
@@ -1879,8 +1905,8 @@ const SpendWiseApp = (function () {
       <div class="cat-item-row">
         <span class="cat-name-badge">${escapeHTML(cat)}</span>
         <div class="cat-actions">
-          <button class="table-action-btn" title="Rename" onclick="SpendWiseApp.renameCustomCategory('${escapeHTML(cat)}')">✏️</button>
-          <button class="table-action-btn delete-btn" title="Delete" onclick="SpendWiseApp.deleteCustomCategory('${escapeHTML(cat)}')">🗑️</button>
+          <button class="table-action-btn" aria-label="Rename category: ${escapeHTML(cat)}" title="Rename" onclick="SpendWiseApp.renameCustomCategory('${escapeHTML(cat)}')">${iconSvg('edit', 16)}</button>
+          <button class="table-action-btn delete-btn" aria-label="Delete category: ${escapeHTML(cat)}" title="Delete" onclick="SpendWiseApp.deleteCustomCategory('${escapeHTML(cat)}')">${iconSvg('trash', 16)}</button>
         </div>
       </div>
     `).join('');
@@ -1905,7 +1931,7 @@ const SpendWiseApp = (function () {
     syncStudentModeUI();
     populateCategoryDropdowns();
     refreshAllViews();
-    showToast(`Student Mode ${state.userPreferences.studentMode ? 'Activated 🎓' : 'Deactivated'}`, 'success');
+    showToast(`Student Mode ${state.userPreferences.studentMode ? 'Activated' : 'Deactivated'}`, 'success');
   }
 
   function syncStudentModeUI() {
@@ -1939,7 +1965,13 @@ const SpendWiseApp = (function () {
     localStorage.setItem(Config.STORAGE_KEYS.THEME, theme);
 
     const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    const themeButton = document.getElementById('themeToggleBtn');
+    if (icon) icon.innerHTML = iconSvg(theme === 'dark' ? 'sun' : 'moon', 19);
+    if (themeButton) {
+      const nextTheme = theme === 'dark' ? 'light' : 'dark';
+      themeButton.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
+      themeButton.title = `Switch to ${nextTheme} theme`;
+    }
 
     SpendWiseStorage.save();
     renderAllReports();
@@ -1981,8 +2013,10 @@ const SpendWiseApp = (function () {
     const tabContents = document.querySelectorAll('.tab-content');
 
     navLinks.forEach(link => {
-      if (link.getAttribute('data-tab') === tabId) link.classList.add('active');
-      else link.classList.remove('active');
+      const isActive = link.getAttribute('data-tab') === tabId;
+      link.classList.toggle('active', isActive);
+      if (isActive) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
     });
 
     tabContents.forEach(content => {
@@ -1992,6 +2026,8 @@ const SpendWiseApp = (function () {
 
     const mainNav = document.getElementById('mainNav');
     if (mainNav) mainNav.classList.remove('open');
+    const mobileBtn = document.getElementById('mobileNavToggle');
+    if (mobileBtn) mobileBtn.setAttribute('aria-expanded', 'false');
 
     // Tab-specific lifecycle activations
     if (tabId === 'dashboard') updateDashboard();
@@ -2003,7 +2039,8 @@ const SpendWiseApp = (function () {
     else if (tabId === 'history') filterHistory();
     else if (tabId === 'settings') renderSettingsTab();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    window.scrollTo({ top: 0, behavior: scrollBehavior });
   }
 
   function renderSettingsTab() {
@@ -2038,12 +2075,27 @@ const SpendWiseApp = (function () {
       closeModal('confirmModal');
     };
 
+    openModal(modal);
+  }
+
+  function openModal(modal) {
+    previouslyFocusedElement = document.activeElement;
     modal.classList.add('open');
+    document.body.classList.add('modal-open');
+    const firstFocusable = modal.querySelector('input:not([type="hidden"]):not([disabled]), button:not([disabled]), select:not([disabled]), textarea:not([disabled])');
+    (firstFocusable || modal.querySelector('.modal-dialog')).focus();
   }
 
   function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.remove('open');
+    if (!document.querySelector('.modal-backdrop.open')) {
+      document.body.classList.remove('modal-open');
+      if (previouslyFocusedElement instanceof HTMLElement && previouslyFocusedElement.isConnected) {
+        previouslyFocusedElement.focus();
+      }
+      previouslyFocusedElement = null;
+    }
     pendingConfirmAction = null;
   }
 
@@ -2053,7 +2105,7 @@ const SpendWiseApp = (function () {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span><span>${escapeHTML(message)}</span>`;
+    toast.innerHTML = `<span class="toast-icon">${iconSvg(type === 'success' ? 'check' : 'warning', 18)}</span><span>${escapeHTML(message)}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
@@ -2103,7 +2155,10 @@ const SpendWiseApp = (function () {
     const mobileBtn = document.getElementById('mobileNavToggle');
     const mainNav = document.getElementById('mainNav');
     if (mobileBtn && mainNav) {
-      mobileBtn.addEventListener('click', () => mainNav.classList.toggle('open'));
+      mobileBtn.addEventListener('click', () => {
+        const isOpen = mainNav.classList.toggle('open');
+        mobileBtn.setAttribute('aria-expanded', String(isOpen));
+      });
     }
 
     // 5. Navigation Tab Links
@@ -2137,7 +2192,38 @@ const SpendWiseApp = (function () {
     // 7. Global Backdrop Click to Close Modals
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-backdrop')) {
-        e.target.classList.remove('open');
+        closeModal(e.target.id);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const modal = document.querySelector('.modal-backdrop.open');
+      if (!modal) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal(modal.id);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(modal.querySelectorAll(
+        'button:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      )).filter(element => element.getClientRects().length > 0);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        modal.querySelector('.modal-dialog').focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
       }
     });
 

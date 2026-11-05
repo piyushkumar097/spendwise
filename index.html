@@ -7,7 +7,7 @@
   <!-- Google Fonts for Modern Clean Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Chart.js for Interactive Visualizations -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <!-- Stylesheet -->
@@ -34,14 +34,14 @@
       <!-- Quick Action Controls & User Greeting -->
       <div class="header-actions">
         <div class="user-greeting-pill">
-          <span class="greeting-wave">👋</span>
+          <span class="greeting-wave" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg></span>
           <span class="greeting-text">Hello, <strong id="headerUserName">Student</strong></span>
         </div>
 
         <!-- Student Mode Badge Toggle -->
         <button id="studentModeBtn" class="pill-btn student-toggle-btn active" title="Toggle Student Mode">
           <span class="pill-dot"></span>
-          <span class="pill-label">🎓 Student Mode: <strong id="studentModeStatus">ON</strong></span>
+          <span class="pill-label"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 10 10-5 10 5-10 5-10-5Z"></path><path d="M6 12v5c3.5 2.5 8.5 2.5 12 0v-5"></path><path d="M22 10v6"></path></svg> Student Mode: <strong id="studentModeStatus">ON</strong></span>
         </button>
 
         <!-- Currency Selector -->
@@ -57,20 +57,20 @@
 
         <!-- Theme Toggle -->
         <button id="themeToggleBtn" class="icon-circle-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
-          <span id="themeIcon">🌙</span>
+          <span id="themeIcon" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"></path></svg></span>
         </button>
 
         <!-- Mobile Navigation Toggle -->
-        <button id="mobileNavToggle" class="mobile-menu-btn" aria-label="Toggle Navigation Menu">
+        <button id="mobileNavToggle" class="mobile-menu-btn" aria-label="Toggle Navigation Menu" aria-controls="mainNav" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <nav class="app-nav" id="mainNav">
+    <nav class="app-nav" id="mainNav" aria-label="Main navigation">
       <div class="nav-container">
-        <button class="nav-link active" data-tab="dashboard">
+        <button class="nav-link active" data-tab="dashboard" aria-current="page">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
           Dashboard
         </button>
@@ -107,11 +107,11 @@
   </header>
 
   <!-- Global Alert Banner for Budget Warnings -->
-  <div id="globalBudgetBanner" class="budget-alert-banner" style="display: none;">
+  <div id="globalBudgetBanner" class="budget-alert-banner" style="display: none;" role="status" aria-live="polite">
     <div class="banner-inner">
-      <span class="banner-icon" id="budgetBannerIcon">⚠️</span>
+      <span class="banner-icon" id="budgetBannerIcon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></span>
       <span class="banner-message" id="budgetBannerText"></span>
-      <button class="banner-close" onclick="document.getElementById('globalBudgetBanner').style.display='none'">✕</button>
+      <button class="banner-close" aria-label="Dismiss budget alert" onclick="document.getElementById('globalBudgetBanner').style.display='none'">✕</button>
     </div>
   </div>
 
@@ -123,8 +123,9 @@
       <!-- Welcome Header Card -->
       <div class="dashboard-hero">
         <div class="hero-text">
-          <h2 class="hero-heading">Welcome back!</h2>
-          <p class="hero-subtext">Track your everyday spending, keep your pocket money safe, and visualize your financial goals.</p>
+          <span class="hero-kicker">Your financial snapshot</span>
+          <h2 class="hero-heading">Your money, at a glance.</h2>
+          <p class="hero-subtext">See what came in, what went out, and how much you have left to work with.</p>
         </div>
         <div class="hero-date-card">
           <div class="date-label">Today's Date</div>
@@ -225,7 +226,7 @@
           <div class="usage-percentage-badge" id="dashUsagePercentBadge">0% Used</div>
         </div>
         <div class="progress-bar-container">
-          <div class="progress-bar-fill" id="dashProgressBar" style="width: 0%;"></div>
+          <div class="progress-bar-fill" id="dashProgressBar" style="width: 0%;" role="progressbar" aria-label="Monthly budget used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
         </div>
         <div class="progress-legend">
           <div class="legend-item"><span class="dot dot-safe"></span> Under 80%: Safe</div>
@@ -237,7 +238,7 @@
       <!-- Student Pocket Money Card (Active in Student Mode) -->
       <div class="content-card student-special-card" id="studentSummaryCard">
         <div class="student-card-header">
-          <div class="student-badge-icon">🎓</div>
+          <div class="student-badge-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 10 10-5 10 5-10 5-10-5Z"></path><path d="M6 12v5c3.5 2.5 8.5 2.5 12 0v-5"></path><path d="M22 10v6"></path></svg></div>
           <div>
             <h3 class="card-title">Student Pocket Money Summary</h3>
             <p class="card-subtitle">Specifically designed to help university students track pocket money vs college &amp; snack expenses.</p>
@@ -338,7 +339,7 @@
 
       <!-- Quick Add Pills for Students / Daily Users -->
       <div class="quick-add-section" id="quickAddSection">
-        <span class="quick-add-label">⚡ 1-Tap Quick Add:</span>
+        <span class="quick-add-label">Quick add:</span>
         <!-- Populated from config.js or fallback -->
         <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Tea / Chai', 10, 'Food')">+ ₹10 Tea</button>
         <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Bus Fare', 20, 'Transportation')">+ ₹20 Bus</button>
@@ -397,7 +398,7 @@
           </table>
         </div>
         <div id="expensesEmptyState" class="empty-state" style="display: none;">
-          <div class="empty-icon">💸</div>
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
           <h4>No expenses found</h4>
           <p>You haven't recorded any expenses matching your filter. Click "+ Record Expense" above to add one.</p>
         </div>
@@ -476,7 +477,7 @@
           </table>
         </div>
         <div id="incomeEmptyState" class="empty-state" style="display: none;">
-          <div class="empty-icon">💰</div>
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div>
           <h4>No income records yet</h4>
           <p>Add your monthly pocket money, stipend, or earnings using the button above.</p>
         </div>
@@ -512,7 +513,7 @@
             Only actual expenses are counted against this budget.
           </p>
           <div class="budget-rules-card">
-            <h4>💡 University Budgeting Concept:</h4>
+            <h4>University budgeting concept</h4>
             <p>A planned budget is a conscious decision to control expenditure before it happens. SpendWise warns you when spending reaches 80% and sounds an alert if you exceed 100%.</p>
           </div>
         </div>
@@ -644,7 +645,7 @@
       <div class="content-card insights-card">
         <div class="card-title-row">
           <div class="insights-title-wrap">
-            <span class="insights-sparkle">✨</span>
+            <span class="insights-sparkle" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-5 5"></path></svg></span>
             <h3 class="card-title">Automated Financial Insights</h3>
           </div>
           <span class="badge-tag">Calculated from Real Data</span>
@@ -780,7 +781,7 @@
           </table>
         </div>
         <div id="historyEmptyState" class="empty-state" style="display: none;">
-          <div class="empty-icon">📜</div>
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v17H5z"></path><path d="M8 8h8M8 12h8M8 16h5"></path></svg></div>
           <h4>No transactions found</h4>
           <p>No records match your search or filter criteria.</p>
         </div>
@@ -819,8 +820,8 @@
           <div class="form-group">
             <label class="form-label">Display Theme:</label>
             <div class="theme-buttons-row">
-              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('light')">☀️ Light Theme</button>
-              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('dark')">🌙 Dark Theme</button>
+              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('light')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg> Light Theme</button>
+              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('dark')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"></path></svg> Dark Theme</button>
             </div>
           </div>
         </div>
@@ -880,10 +881,10 @@
 
   <!-- Modal: Add / Edit Expense -->
   <div class="modal-backdrop" id="expenseModal">
-    <div class="modal-dialog">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="expenseModalTitle" tabindex="-1">
       <div class="modal-header">
         <h3 class="modal-title" id="expenseModalTitle">Record Daily Expense</h3>
-        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('expenseModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close expense form" onclick="SpendWiseApp.closeModal('expenseModal')">✕</button>
       </div>
       <form id="expenseForm" onsubmit="SpendWiseApp.handleExpenseSubmit(event)">
         <input type="hidden" id="expenseEditId" value="">
@@ -940,10 +941,10 @@
 
   <!-- Modal: Add / Edit Income -->
   <div class="modal-backdrop" id="incomeModal">
-    <div class="modal-dialog">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="incomeModalTitle" tabindex="-1">
       <div class="modal-header">
         <h3 class="modal-title" id="incomeModalTitle">Record Income</h3>
-        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('incomeModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close income form" onclick="SpendWiseApp.closeModal('incomeModal')">✕</button>
       </div>
       <form id="incomeForm" onsubmit="SpendWiseApp.handleIncomeSubmit(event)">
         <input type="hidden" id="incomeEditId" value="">
@@ -994,10 +995,10 @@
 
   <!-- Modal: Set Monthly Budget -->
   <div class="modal-backdrop" id="budgetModal">
-    <div class="modal-dialog">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle" tabindex="-1">
       <div class="modal-header">
-        <h3 class="modal-title">Set Monthly Budget</h3>
-        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('budgetModal')">✕</button>
+        <h3 class="modal-title" id="budgetModalTitle">Set Monthly Budget</h3>
+        <button type="button" class="modal-close-btn" aria-label="Close budget form" onclick="SpendWiseApp.closeModal('budgetModal')">✕</button>
       </div>
       <form id="budgetForm" onsubmit="SpendWiseApp.handleBudgetSubmit(event)">
         <div class="modal-body">
@@ -1025,10 +1026,10 @@
 
   <!-- Modal: Confirmation Dialog -->
   <div class="modal-backdrop" id="confirmModal">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-sm" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" tabindex="-1">
       <div class="modal-header">
         <h3 class="modal-title" id="confirmModalTitle">Are you sure?</h3>
-        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('confirmModal')">✕</button>
+        <button type="button" class="modal-close-btn" aria-label="Close confirmation dialog" onclick="SpendWiseApp.closeModal('confirmModal')">✕</button>
       </div>
       <div class="modal-body">
         <p id="confirmModalMessage" class="confirm-msg">Do you really want to perform this action?</p>
@@ -1041,7 +1042,7 @@
   </div>
 
   <!-- Toast Notification Container -->
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toastContainer" class="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
 
   <!-- Central Configuration File (Loaded First for Developer Control) -->
   <script src="config.js"></script>
