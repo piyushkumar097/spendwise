@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpendWise – Personal Expense &amp; Budget Visualizer</title>
+  <!-- Google Fonts for Modern Clean Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js for Interactive Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="light">
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+            <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">SpendWise</h1>
+          <p class="brand-tagline">Personal Expense &amp; Budget Visualizer</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls & User Greeting -->
+      <div class="header-actions">
+        <div class="user-greeting-pill">
+          <span class="greeting-wave">👋</span>
+          <span class="greeting-text">Hello, <strong id="headerUserName">Student</strong></span>
+        </div>
+
+        <!-- Student Mode Badge Toggle -->
+        <button id="studentModeBtn" class="pill-btn student-toggle-btn active" title="Toggle Student Mode">
+          <span class="pill-dot"></span>
+          <span class="pill-label">🎓 Student Mode: <strong id="studentModeStatus">ON</strong></span>
+        </button>
+
+        <!-- Currency Selector -->
+        <div class="currency-selector-wrap">
+          <label for="currencySelect" class="sr-only">Currency</label>
+          <select id="currencySelect" class="currency-select" title="Change currency">
+            <option value="INR" selected>₹ INR (Indian Rupee)</option>
+            <option value="USD">$ USD (US Dollar)</option>
+            <option value="EUR">€ EUR (Euro)</option>
+            <option value="GBP">£ GBP (British Pound)</option>
+          </select>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" class="icon-circle-btn" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        <!-- Mobile Navigation Toggle -->
+        <button id="mobileNavToggle" class="mobile-menu-btn" aria-label="Toggle Navigation Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="app-nav" id="mainNav">
+      <div class="nav-container">
+        <button class="nav-link active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+          Dashboard
+        </button>
+        <button class="nav-link" data-tab="expenses">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Daily Expenses
+        </button>
+        <button class="nav-link" data-tab="income">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+          Income
+        </button>
+        <button class="nav-link" data-tab="budget">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m16 10-4 4-2-2"></path></svg>
+          Budget Planner
+        </button>
+        <button class="nav-link" data-tab="budget-vs-actual">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+          Budget vs Actual
+        </button>
+        <button class="nav-link" data-tab="reports">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          Monthly Report &amp; Charts
+        </button>
+        <button class="nav-link" data-tab="history">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Your Money History
+        </button>
+        <button class="nav-link" data-tab="settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Customization
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Global Alert Banner for Budget Warnings -->
+  <div id="globalBudgetBanner" class="budget-alert-banner" style="display: none;">
+    <div class="banner-inner">
+      <span class="banner-icon" id="budgetBannerIcon">⚠️</span>
+      <span class="banner-message" id="budgetBannerText"></span>
+      <button class="banner-close" onclick="document.getElementById('globalBudgetBanner').style.display='none'">✕</button>
+    </div>
+  </div>
+
+  <!-- Main Application Container -->
+  <main class="app-main">
+    
+    <!-- ==================== TAB 1: DASHBOARD ==================== -->
+    <section id="tab-dashboard" class="tab-content active">
+      <!-- Welcome Header Card -->
+      <div class="dashboard-hero">
+        <div class="hero-text">
+          <h2 class="hero-heading">Welcome back!</h2>
+          <p class="hero-subtext">Track your everyday spending, keep your pocket money safe, and visualize your financial goals.</p>
+        </div>
+        <div class="hero-date-card">
+          <div class="date-label">Today's Date</div>
+          <div class="date-value" id="currentDateDisplay">--</div>
+          <div class="date-month-filter">
+            <label for="dashMonthSelect">Viewing Month:</label>
+            <input type="month" id="dashMonthSelect" class="clean-month-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="quick-actions-bar">
+        <button class="btn btn-primary" onclick="SpendWiseApp.openAddExpenseModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Daily Expense
+        </button>
+        <button class="btn btn-secondary" onclick="SpendWiseApp.openAddIncomeModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+          Add Income
+        </button>
+        <button class="btn btn-outline" onclick="SpendWiseApp.openSetBudgetModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m16 10-4 4-2-2"></path></svg>
+          Set Monthly Budget
+        </button>
+        <button class="btn btn-outline" onclick="SpendWiseApp.switchTab('reports')">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          View Monthly Report
+        </button>
+      </div>
+
+      <!-- Key Financial Metrics Cards (100% Dynamic) -->
+      <div class="metrics-grid">
+        <!-- Total Income -->
+        <div class="metric-card card-income">
+          <div class="metric-header">
+            <span class="metric-title">Total Income</span>
+            <div class="metric-icon-wrap bg-green-light">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+            </div>
+          </div>
+          <div class="metric-value text-green" id="dashTotalIncome">₹0.00</div>
+          <div class="metric-footer">
+            <span class="metric-sub" id="dashIncomeCount">0 income entries</span>
+          </div>
+        </div>
+
+        <!-- Monthly Budget -->
+        <div class="metric-card card-budget">
+          <div class="metric-header">
+            <span class="metric-title">Monthly Budget</span>
+            <div class="metric-icon-wrap bg-blue-light">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </div>
+          </div>
+          <div class="metric-value text-blue" id="dashMonthlyBudget">₹0.00</div>
+          <div class="metric-footer">
+            <span class="metric-sub" id="dashBudgetStatusText">Planned spending limit</span>
+          </div>
+        </div>
+
+        <!-- Total Money Spent -->
+        <div class="metric-card card-expense">
+          <div class="metric-header">
+            <span class="metric-title">Money Spent</span>
+            <div class="metric-icon-wrap bg-amber-light">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+          <div class="metric-value text-amber" id="dashMoneySpent">₹0.00</div>
+          <div class="metric-footer">
+            <span class="metric-sub" id="dashExpenseCount">0 expenses recorded</span>
+          </div>
+        </div>
+
+        <!-- Money Left (Remaining = Monthly Budget - Money Spent) -->
+        <div class="metric-card card-remaining">
+          <div class="metric-header">
+            <span class="metric-title">Money Left</span>
+            <div class="metric-icon-wrap bg-emerald-light">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+          </div>
+          <div class="metric-value" id="dashMoneyLeft">₹0.00</div>
+          <div class="metric-footer">
+            <span class="metric-sub" id="dashMoneyLeftHint">Remaining Budget</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget Usage Progress Bar Card -->
+      <div class="content-card progress-dashboard-card">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Budget Usage</h3>
+            <p class="card-subtitle">Expenses strictly compared against your planned budget for <span id="dashProgressMonth">this month</span>.</p>
+          </div>
+          <div class="usage-percentage-badge" id="dashUsagePercentBadge">0% Used</div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="dashProgressBar" style="width: 0%;"></div>
+        </div>
+        <div class="progress-legend">
+          <div class="legend-item"><span class="dot dot-safe"></span> Under 80%: Safe</div>
+          <div class="legend-item"><span class="dot dot-warning"></span> 80% to 100%: Warning</div>
+          <div class="legend-item"><span class="dot dot-danger"></span> Over 100%: Budget Exceeded</div>
+        </div>
+      </div>
+
+      <!-- Student Pocket Money Card (Active in Student Mode) -->
+      <div class="content-card student-special-card" id="studentSummaryCard">
+        <div class="student-card-header">
+          <div class="student-badge-icon">🎓</div>
+          <div>
+            <h3 class="card-title">Student Pocket Money Summary</h3>
+            <p class="card-subtitle">Specifically designed to help university students track pocket money vs college &amp; snack expenses.</p>
+          </div>
+        </div>
+        <div class="student-stats-row">
+          <div class="student-stat">
+            <span class="s-label">Pocket Money Received</span>
+            <span class="s-val text-green" id="studentPocketMoney">₹0.00</span>
+          </div>
+          <div class="student-stat">
+            <span class="s-label">Money Spent</span>
+            <span class="s-val text-amber" id="studentMoneySpent">₹0.00</span>
+          </div>
+          <div class="student-stat">
+            <span class="s-label">Pocket Money Left</span>
+            <span class="s-val text-blue" id="studentMoneyRemaining">₹0.00</span>
+          </div>
+          <div class="student-stat">
+            <span class="s-label">Spent Ratio</span>
+            <span class="s-val" id="studentSpendRatio">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout: Spending Summaries & Recent Transactions -->
+      <div class="dashboard-two-col">
+        <!-- Daily & Monthly Spending Breakdown -->
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3 class="card-title">Spending Summaries</h3>
+            <span class="badge-tag">Real-Time</span>
+          </div>
+          <div class="spending-breakdown-list">
+            <div class="breakdown-item">
+              <div class="breakdown-info">
+                <span class="breakdown-label">Today's Spending</span>
+                <span class="breakdown-sub" id="todayDateLabel">Today</span>
+              </div>
+              <span class="breakdown-amount text-amber" id="dashTodaySpending">₹0.00</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-info">
+                <span class="breakdown-label">This Week's Spending</span>
+                <span class="breakdown-sub">Current calendar week (Mon - Sun)</span>
+              </div>
+              <span class="breakdown-amount text-amber" id="dashWeekSpending">₹0.00</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-info">
+                <span class="breakdown-label">This Month's Spending</span>
+                <span class="breakdown-sub" id="monthSummaryLabel">Selected Month</span>
+              </div>
+              <span class="breakdown-amount text-amber" id="dashMonthSpending">₹0.00</span>
+            </div>
+            <div class="breakdown-item">
+              <div class="breakdown-info">
+                <span class="breakdown-label">Average Daily Spending</span>
+                <span class="breakdown-sub">Based on elapsed days this month</span>
+              </div>
+              <span class="breakdown-amount" id="dashAvgDailySpending">₹0.00 / day</span>
+            </div>
+            <div class="breakdown-item highlight-item">
+              <div class="breakdown-info">
+                <span class="breakdown-label">Highest Individual Expense</span>
+                <span class="breakdown-sub" id="dashHighestExpenseDesc">None recorded</span>
+              </div>
+              <span class="breakdown-amount text-danger" id="dashHighestExpenseAmount">₹0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3 class="card-title">Recent Transactions</h3>
+            <button class="btn btn-text" onclick="SpendWiseApp.switchTab('history')">View All →</button>
+          </div>
+          <div class="recent-list-container" id="dashRecentTransactionsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: DAILY EXPENSES ==================== -->
+    <section id="tab-expenses" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Daily Expense Tracker</h2>
+          <p class="section-subtitle">Record every rupee! From ₹10 street chai to ₹200 textbooks.</p>
+        </div>
+        <button class="btn btn-primary" onclick="SpendWiseApp.openAddExpenseModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Record Expense
+        </button>
+      </div>
+
+      <!-- Quick Add Pills for Students / Daily Users -->
+      <div class="quick-add-section" id="quickAddSection">
+        <span class="quick-add-label">⚡ 1-Tap Quick Add:</span>
+        <!-- Populated from config.js or fallback -->
+        <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Tea / Chai', 10, 'Food')">+ ₹10 Tea</button>
+        <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Bus Fare', 20, 'Transportation')">+ ₹20 Bus</button>
+        <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Street food', 40, 'Food')">+ ₹40 Street Food</button>
+        <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Stationery / Pen', 50, 'Education')">+ ₹50 Stationery</button>
+        <button class="pill-chip" onclick="SpendWiseApp.quickAddExpense('Book / Xerox', 100, 'Education')">+ ₹100 Xerox/Books</button>
+      </div>
+
+      <!-- Expense Filters & Search -->
+      <div class="filter-card">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="expenseSearchInput" placeholder="Search by description or notes..." oninput="SpendWiseApp.filterExpenses()">
+        </div>
+        <div class="filter-controls-row">
+          <div class="filter-group">
+            <label for="expenseCategoryFilter">Category:</label>
+            <select id="expenseCategoryFilter" onchange="SpendWiseApp.filterExpenses()">
+              <option value="ALL">All Categories</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="expenseTimeFilter">Time Period:</label>
+            <select id="expenseTimeFilter" onchange="SpendWiseApp.filterExpenses()">
+              <option value="all">All Time</option>
+              <option value="today">Today Only</option>
+              <option value="week">This Week</option>
+              <option value="month" selected>This Month</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="expenseCustomDate">Specific Date:</label>
+            <input type="date" id="expenseCustomDate" onchange="SpendWiseApp.filterExpenses()">
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="SpendWiseApp.resetExpenseFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Expense List Table -->
+      <div class="content-card table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="expensesTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Notes</th>
+                <th class="text-right">Amount</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="expensesEmptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">💸</div>
+          <h4>No expenses found</h4>
+          <p>You haven't recorded any expenses matching your filter. Click "+ Record Expense" above to add one.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: INCOME ==================== -->
+    <section id="tab-income" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Income Management</h2>
+          <p class="section-subtitle">Record pocket money, freelance gigs, part-time wages, scholarships, or salary.</p>
+        </div>
+        <button class="btn btn-primary" onclick="SpendWiseApp.openAddIncomeModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Record Income
+        </button>
+      </div>
+
+      <!-- Income Summary Banner -->
+      <div class="income-overview-cards">
+        <div class="stat-box">
+          <span class="stat-label">Total Recorded Income</span>
+          <span class="stat-number text-green" id="incomeTotalAllTime">₹0.00</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Income This Month</span>
+          <span class="stat-number text-green" id="incomeTotalThisMonth">₹0.00</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Top Income Source</span>
+          <span class="stat-number text-blue" id="incomeTopSource">None</span>
+        </div>
+      </div>
+
+      <!-- Income Filter & Search -->
+      <div class="filter-card">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="incomeSearchInput" placeholder="Search income description or notes..." oninput="SpendWiseApp.filterIncome()">
+        </div>
+        <div class="filter-controls-row">
+          <div class="filter-group">
+            <label for="incomeSourceFilter">Source:</label>
+            <select id="incomeSourceFilter" onchange="SpendWiseApp.filterIncome()">
+              <option value="ALL">All Sources</option>
+              <option value="Pocket Money">Pocket Money</option>
+              <option value="Salary">Salary</option>
+              <option value="Freelancing">Freelancing</option>
+              <option value="Scholarship">Scholarship</option>
+              <option value="Business">Business</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="SpendWiseApp.resetIncomeFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Income Table -->
+      <div class="content-card table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="incomeTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Source</th>
+                <th>Notes</th>
+                <th class="text-right">Amount</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="incomeTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="incomeEmptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">💰</div>
+          <h4>No income records yet</h4>
+          <p>Add your monthly pocket money, stipend, or earnings using the button above.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: BUDGET PLANNER ==================== -->
+    <section id="tab-budget" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Monthly Budget Planner</h2>
+          <p class="section-subtitle">Set planned spending caps for each month and specify category limits.</p>
+        </div>
+        <button class="btn btn-primary" onclick="SpendWiseApp.openSetBudgetModal()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m16 10-4 4-2-2"></path></svg>
+          Set / Edit Budget
+        </button>
+      </div>
+
+      <div class="budget-planner-grid">
+        <!-- Monthly Budget Target Card -->
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3 class="card-title">Overall Month Budget</h3>
+            <input type="month" id="budgetSelectMonth" class="clean-month-input" onchange="SpendWiseApp.loadBudgetForSelectedMonth()">
+          </div>
+          <div class="budget-big-stat">
+            <span class="budget-num-label">Current Planned Limit:</span>
+            <div class="budget-num-val" id="plannerMonthlyBudgetDisplay">₹0.00</div>
+          </div>
+          <p class="card-subtitle">
+            Formula: <code>Remaining Budget = Monthly Budget - Total Expenses (Same Month)</code>.
+            Only actual expenses are counted against this budget.
+          </p>
+          <div class="budget-rules-card">
+            <h4>💡 University Budgeting Concept:</h4>
+            <p>A planned budget is a conscious decision to control expenditure before it happens. SpendWise warns you when spending reaches 80% and sounds an alert if you exceed 100%.</p>
+          </div>
+        </div>
+
+        <!-- Category-Wise Budget Allocator -->
+        <div class="content-card">
+          <div class="card-title-row">
+            <h3 class="card-title">Category-wise Budget Caps</h3>
+            <span class="badge-tag">Optional Allocations</span>
+          </div>
+          <p class="card-subtitle">Set specific limits for individual categories (e.g., ₹2000 for Food, ₹1000 for Entertainment).</p>
+          
+          <div class="category-budget-form-row">
+            <select id="catBudgetCategorySelect" class="form-select">
+              <!-- Populated dynamically -->
+            </select>
+            <input type="number" id="catBudgetAmountInput" placeholder="Budget Amount" min="1" step="0.01" class="form-input">
+            <button class="btn btn-secondary btn-sm" onclick="SpendWiseApp.saveCategoryBudget()">Save Cap</button>
+          </div>
+
+          <div class="category-budgets-list" id="categoryBudgetsListContainer">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: BUDGET VS ACTUAL SPENDING ==================== -->
+    <section id="tab-budget-vs-actual" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Budget vs Actual Spending</h2>
+          <p class="section-subtitle">University Innovation Lab Requirement: Direct side-by-side comparison between your planned budget and actual money spent.</p>
+        </div>
+        <div class="month-picker-wrap">
+          <label for="bvaMonthSelect">Month:</label>
+          <input type="month" id="bvaMonthSelect" class="clean-month-input" onchange="SpendWiseApp.renderBudgetVsActual()">
+        </div>
+      </div>
+
+      <!-- Side-by-Side Summary Comparison Cards -->
+      <div class="bva-cards-row">
+        <div class="bva-card bva-planned">
+          <span class="bva-title">Planned Monthly Budget</span>
+          <span class="bva-amount text-blue" id="bvaPlannedAmount">₹0.00</span>
+          <span class="bva-sub">Target spending ceiling</span>
+        </div>
+        <div class="bva-card bva-spent">
+          <span class="bva-title">Actual Money Spent</span>
+          <span class="bva-amount text-amber" id="bvaActualAmount">₹0.00</span>
+          <span class="bva-sub" id="bvaExpenseCount">Total actual expenses</span>
+        </div>
+        <div class="bva-card bva-remaining">
+          <span class="bva-title">Remaining Budget</span>
+          <span class="bva-amount" id="bvaRemainingAmount">₹0.00</span>
+          <span class="bva-sub" id="bvaRemainingSub">Left to spend</span>
+        </div>
+        <div class="bva-card bva-percentage">
+          <span class="bva-title">Budget Usage</span>
+          <span class="bva-amount" id="bvaUsagePercent">0%</span>
+          <span class="bva-sub" id="bvaStatusBadge">Safe</span>
+        </div>
+      </div>
+
+      <!-- Large Visual Progress Card -->
+      <div class="content-card">
+        <h3 class="card-title">Overall Budget Execution</h3>
+        <p class="card-subtitle">Visual representation of where your spending stands relative to your 100% monthly budget threshold.</p>
+        <div class="bva-progress-wrap">
+          <div class="bva-progress-bar">
+            <div class="bva-progress-fill" id="bvaProgressBarFill" style="width: 0%;"></div>
+          </div>
+          <div class="bva-ticks">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span class="text-amber font-bold">80% (Warning)</span>
+            <span class="text-danger font-bold">100% (Limit)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category-wise Budget vs Actual Table & Bar Chart -->
+      <div class="bva-grid-row">
+        <div class="content-card">
+          <h3 class="card-title">Category Breakdown: Planned vs Actual</h3>
+          <p class="card-subtitle">Examine where you adhered to budget caps and where you overspent.</p>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th class="text-right">Planned Cap</th>
+                  <th class="text-right">Actual Spent</th>
+                  <th class="text-right">Variance / Remaining</th>
+                  <th class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="bvaCategoryTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="content-card">
+          <h3 class="card-title">Comparison Chart</h3>
+          <p class="card-subtitle">Interactive comparison between Planned Budget and Actual Spending.</p>
+          <div class="chart-container" style="height: 320px;">
+            <canvas id="budgetVsActualChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 6: MONTHLY REPORT & CHARTS ==================== -->
+    <section id="tab-reports" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Monthly Report &amp; Visual Analytics</h2>
+          <p class="section-subtitle">Visual intelligence, interactive Chart.js charts, and automated financial insights.</p>
+        </div>
+        <div class="month-picker-wrap">
+          <label for="reportsMonthSelect">Analysis Month:</label>
+          <input type="month" id="reportsMonthSelect" class="clean-month-input" onchange="SpendWiseApp.renderAllReports()">
+        </div>
+      </div>
+
+      <!-- Financial Insights Cards -->
+      <div class="content-card insights-card">
+        <div class="card-title-row">
+          <div class="insights-title-wrap">
+            <span class="insights-sparkle">✨</span>
+            <h3 class="card-title">Automated Financial Insights</h3>
+          </div>
+          <span class="badge-tag">Calculated from Real Data</span>
+        </div>
+        <div class="insights-grid" id="financialInsightsContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <!-- 1. Category Pie Chart -->
+        <div class="content-card chart-card">
+          <div class="card-title-row">
+            <div>
+              <h3 class="card-title">Category-wise Spending</h3>
+              <p class="card-subtitle">Visual distribution of expenses for this month.</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="categoryPieChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 2. Income vs Expenses Chart -->
+        <div class="content-card chart-card">
+          <div class="card-title-row">
+            <div>
+              <h3 class="card-title">Income vs Expenses</h3>
+              <p class="card-subtitle">Cash inflow vs outflow comparison.</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="incomeVsExpenseChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. Monthly Spending Trend Chart -->
+        <div class="content-card chart-card">
+          <div class="card-title-row">
+            <div>
+              <h3 class="card-title">Monthly Spending Trend</h3>
+              <p class="card-subtitle">Total money spent across the last 6 months.</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. Category-wise Budget Comparison Chart -->
+        <div class="content-card chart-card">
+          <div class="card-title-row">
+            <div>
+              <h3 class="card-title">Category Budget vs Actual</h3>
+              <p class="card-subtitle">Planned cap vs actual spending per category.</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="categoryBudgetChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 7: YOUR MONEY HISTORY ==================== -->
+    <section id="tab-history" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Your Money History</h2>
+          <p class="section-subtitle">Complete ledger of every transaction (income &amp; expenses). Search, filter, edit, or export.</p>
+        </div>
+        <div class="history-actions-row">
+          <button class="btn btn-secondary" onclick="SpendWiseApp.exportToCSV()">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export to CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- History Filter Controls -->
+      <div class="filter-card">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="historySearchInput" placeholder="Search any transaction by description or notes..." oninput="SpendWiseApp.filterHistory()">
+        </div>
+        <div class="filter-controls-row">
+          <div class="filter-group">
+            <label for="historyTypeFilter">Type:</label>
+            <select id="historyTypeFilter" onchange="SpendWiseApp.filterHistory()">
+              <option value="ALL">All Transactions</option>
+              <option value="expense">Expenses Only</option>
+              <option value="income">Income Only</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="historyCategoryFilter">Category / Source:</label>
+            <select id="historyCategoryFilter" onchange="SpendWiseApp.filterHistory()">
+              <option value="ALL">All Categories / Sources</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="historyPeriodFilter">Timeframe:</label>
+            <select id="historyPeriodFilter" onchange="SpendWiseApp.filterHistory()">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="SpendWiseApp.resetHistoryFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="content-card table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Category / Source</th>
+                <th>Notes</th>
+                <th class="text-right">Amount</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="historyEmptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">📜</div>
+          <h4>No transactions found</h4>
+          <p>No records match your search or filter criteria.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 8: CUSTOMIZATION & SETTINGS ==================== -->
+    <section id="tab-settings" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">App Customization &amp; Settings</h2>
+          <p class="section-subtitle">Tailor SpendWise to your lifestyle, manage custom categories, and control local data.</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- User Profile Card -->
+        <div class="content-card">
+          <h3 class="card-title">User Preferences</h3>
+          <p class="card-subtitle">Customize your personal greeting and interface preferences.</p>
+          
+          <div class="form-group">
+            <label for="settingsUserName" class="form-label">Your Name / Nickname:</label>
+            <div class="input-with-action">
+              <input type="text" id="settingsUserName" class="form-input" placeholder="e.g. Rahul, Sneha, Alex">
+              <button class="btn btn-secondary btn-sm" onclick="SpendWiseApp.saveUserName()">Save Name</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Student Mode:</label>
+            <p class="form-hint">Enables student-tailored expense categories (Hostel, Pocket Money, Books, College Fees) and the pocket money tracker.</p>
+            <button class="btn btn-outline" id="settingsToggleStudentBtn" onclick="SpendWiseApp.toggleStudentMode()">Toggle Student Mode</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Display Theme:</label>
+            <div class="theme-buttons-row">
+              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('light')">☀️ Light Theme</button>
+              <button class="btn btn-outline" onclick="SpendWiseApp.setTheme('dark')">🌙 Dark Theme</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Category Management -->
+        <div class="content-card">
+          <h3 class="card-title">Custom Expense Categories</h3>
+          <p class="card-subtitle">Create new categories, rename them, or delete custom categories you no longer need.</p>
+          
+          <div class="add-cat-form-row">
+            <input type="text" id="newCategoryInput" class="form-input" placeholder="e.g. Gym, Pet Care, Gadgets">
+            <button class="btn btn-primary btn-sm" onclick="SpendWiseApp.addCustomCategory()">+ Add Category</button>
+          </div>
+
+          <div class="custom-cat-list" id="customCategoriesList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Data Storage & Safety -->
+        <div class="content-card danger-zone-card">
+          <h3 class="card-title text-danger">Data Storage &amp; Safety</h3>
+          <p class="card-subtitle">SpendWise securely stores all your financial records locally inside your browser's <code>localStorage</code>. No remote server or external cloud has access to your private finances.</p>
+          
+          <div class="data-stats-row">
+            <div class="data-stat-item">
+              <span class="d-label">Application Version:</span>
+              <strong id="storageAppVersion">1.1.0</strong>
+            </div>
+            <div class="data-stat-item">
+              <span class="d-label">Total Stored Expenses:</span>
+              <strong id="storageExpenseCount">0</strong>
+            </div>
+            <div class="data-stat-item">
+              <span class="d-label">Total Stored Income:</span>
+              <strong id="storageIncomeCount">0</strong>
+            </div>
+            <div class="data-stat-item">
+              <span class="d-label">Sample Data:</span>
+              <strong id="storageDemoStatus">Disabled — zero-data defaults</strong>
+            </div>
+          </div>
+
+          <div class="danger-actions-row">
+            <button class="btn btn-danger-outline" onclick="SpendWiseApp.confirmResetData()">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Reset All Application Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Add / Edit Expense -->
+  <div class="modal-backdrop" id="expenseModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="expenseModalTitle">Record Daily Expense</h3>
+        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('expenseModal')">✕</button>
+      </div>
+      <form id="expenseForm" onsubmit="SpendWiseApp.handleExpenseSubmit(event)">
+        <input type="hidden" id="expenseEditId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="expenseDescription" class="form-label">Expense Description <span class="required">*</span></label>
+            <input type="text" id="expenseDescription" class="form-input" placeholder="e.g. Street food, Chai, Bus ticket, Book" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="expenseAmount" class="form-label">Amount <span class="required">*</span></label>
+              <div class="input-currency-group">
+                <span class="currency-prefix" id="expenseCurrencyPrefix">₹</span>
+                <input type="number" id="expenseAmount" class="form-input" placeholder="0.00" min="0.01" step="any" required>
+              </div>
+            </div>
+            <div class="form-group flex-1">
+              <label for="expenseCategory" class="form-label">Category <span class="required">*</span></label>
+              <select id="expenseCategory" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="expenseDate" class="form-label">Date <span class="required">*</span></label>
+              <input type="date" id="expenseDate" class="form-input" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="expenseCurrency" class="form-label">Currency</label>
+              <select id="expenseCurrency" class="form-select">
+                <option value="INR">INR (₹)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="expenseNotes" class="form-label">Optional Notes</label>
+            <textarea id="expenseNotes" class="form-textarea" rows="2" placeholder="e.g. Paid cash, split with friends, daily street food expense"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="SpendWiseApp.closeModal('expenseModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="expenseSubmitBtn">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Income -->
+  <div class="modal-backdrop" id="incomeModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="incomeModalTitle">Record Income</h3>
+        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('incomeModal')">✕</button>
+      </div>
+      <form id="incomeForm" onsubmit="SpendWiseApp.handleIncomeSubmit(event)">
+        <input type="hidden" id="incomeEditId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="incomeDescription" class="form-label">Income Description <span class="required">*</span></label>
+            <input type="text" id="incomeDescription" class="form-input" placeholder="e.g. Monthly Pocket Money, Project Stipend, Freelance" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="incomeAmount" class="form-label">Amount <span class="required">*</span></label>
+              <div class="input-currency-group">
+                <span class="currency-prefix" id="incomeCurrencyPrefix">₹</span>
+                <input type="number" id="incomeAmount" class="form-input" placeholder="0.00" min="0.01" step="any" required>
+              </div>
+            </div>
+            <div class="form-group flex-1">
+              <label for="incomeSource" class="form-label">Source <span class="required">*</span></label>
+              <select id="incomeSource" class="form-select" required>
+                <option value="Pocket Money">Pocket Money</option>
+                <option value="Salary">Salary</option>
+                <option value="Freelancing">Freelancing</option>
+                <option value="Scholarship">Scholarship</option>
+                <option value="Business">Business</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="incomeDate" class="form-label">Date <span class="required">*</span></label>
+            <input type="date" id="incomeDate" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="incomeNotes" class="form-label">Optional Notes</label>
+            <textarea id="incomeNotes" class="form-textarea" rows="2" placeholder="e.g. Received from parents for November college expenses"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="SpendWiseApp.closeModal('incomeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="incomeSubmitBtn">Save Income</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Set Monthly Budget -->
+  <div class="modal-backdrop" id="budgetModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Set Monthly Budget</h3>
+        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('budgetModal')">✕</button>
+      </div>
+      <form id="budgetForm" onsubmit="SpendWiseApp.handleBudgetSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="budgetMonthInput" class="form-label">Select Month <span class="required">*</span></label>
+            <input type="month" id="budgetMonthInput" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="budgetAmountInput" class="form-label">Total Monthly Budget Limit <span class="required">*</span></label>
+            <div class="input-currency-group">
+              <span class="currency-prefix" id="budgetCurrencyPrefix">₹</span>
+              <input type="number" id="budgetAmountInput" class="form-input" placeholder="e.g. 5000" min="0" step="any" required>
+            </div>
+            <p class="form-hint">Sets your spending ceiling for the chosen month. Setting 0 clears the budget. Warning occurs at 80% usage.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="SpendWiseApp.closeModal('budgetModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmation Dialog -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirmModalTitle">Are you sure?</h3>
+        <button class="modal-close-btn" onclick="SpendWiseApp.closeModal('confirmModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage" class="confirm-msg">Do you really want to perform this action?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="SpendWiseApp.closeModal('confirmModal')">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmModalActionBtn">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Central Configuration File (Loaded First for Developer Control) -->
+  <script src="config.js"></script>
+  <!-- Main Application Script (Calculation Engine & UI Renderer) -->
+  <script src="script.js"></script>
+</body>
+</html>
